@@ -1,4 +1,4 @@
-# Connect-Four
+# Gomoku
 
 **Version 1.1**
 
