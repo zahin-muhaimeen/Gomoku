@@ -56,30 +56,26 @@ def get_int(prompt: str) -> int:
 
 
 # Player Move Functionality
-player_turn = True
-turn_count = 0
-
-
 def choose_pos(x: int, player_y: int) -> None:
     """
-    Lets the player/computer choose a postition on
+    Lets the player/computer choose a position on
     the board.
     
     :param x: An `int` for position x in the board.
     :param y: An `int` for position y in the board. 
     """
-    global turn_count, player_turn
+    global play_count, cross_turn
     y = (BOARD_LENGTH - 1) - player_y
 
     if is_on_board(x, y):
         if board[y][x] == " ":
-            if player_turn:
+            if cross_turn:
                 board[y][x] = "X"
-                player_turn = False
+                cross_turn = False
             else:
                 board[y][x] = "O"
-                player_turn = True
-            turn_count += 1
+                cross_turn = True
+            play_count += 1
         else:
             print(f"Positions x: {x} and y: {player_y} are occupied by {board[y][x]}")
     else:
@@ -88,17 +84,17 @@ def choose_pos(x: int, player_y: int) -> None:
 
 # Resets the Game
 def reset():
-    global turn_count
+    global play_count, cross_turn
 
     for i in range(BOARD_LENGTH):
         for j in range(BOARD_LENGTH):
             board[i][j] = " "
 
-    player_turn = True
-    turn_count = 0
+    cross_turn = True
+    play_count = 0
 
 
-# Finding Consecutives
+# Finding Consecutive
 def consecutive(item: str or int, items: list or tuple) -> int:
     """
     Finds the highest consecutive of something in a list
@@ -134,9 +130,9 @@ def checking(moved: str, x: int, player_y: int) -> None or str:
     y = (BOARD_LENGTH - 1) - player_y
 
     cl_row = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_col = cl_row 
-    cl_pdia = cl_row
-    cl_ndia = cl_row
+    cl_col = [None] * (WINNING_LENGTH * 2 - 1) 
+    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
 
     # Starting Positions  
     starting_x = x - (WINNING_LENGTH - 1)
@@ -144,6 +140,10 @@ def checking(moved: str, x: int, player_y: int) -> None or str:
     
     # Row, Column and Diagonals
     for change in range(WINNING_LENGTH * 2 - 1):
+        # Starting Positions  
+        starting_x = x - (WINNING_LENGTH - 1)
+        starting_y = y + (WINNING_LENGTH - 1)
+
         # Row
         if is_on_board(starting_x + change, y):
             cl_row[change] = board[y][starting_x + change]
@@ -174,7 +174,7 @@ def checking(moved: str, x: int, player_y: int) -> None or str:
         return f"{moved} Won!"
     
     # Draw
-    if turn_count == (BOARD_LENGTH ** 2):
+    if play_count == (BOARD_LENGTH ** 2):
         return "Draw!"
 
 
@@ -200,7 +200,7 @@ def main():
 
             printing_board()
 
-            move_x = get_int("x: ") 
+            move_x = get_int("x: ")
             move_y = get_int("y: ")
             choose_pos(move_x, move_y)
 
@@ -211,12 +211,14 @@ def main():
                 break
 
         still_play = input("Play Again? (y/n): ")
-        if still_play.casefold() in "y or n":
-            if still_play.casefold() == "n":
-                break
-        reset()
+        while still_play != "y" or still_play != "n":
+            still_play = input("Please enter `y` (yes) or `n` (no): ")
+        else:
+            if still_play == "y":
+                reset()
+            else:
+                play = False
 
 
 if __name__ == "__main__":
     main()
-
